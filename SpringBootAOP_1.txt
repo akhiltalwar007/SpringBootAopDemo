@@ -1,0 +1,146 @@
+				Spring Boot AOP				
+				
+			AOP : Aspect Oriented Programming
+
+*) Cross-Cutting Concern: Move Additional Services of a Project into other classes
+   [Services class/Aspect classes] and bind when and where they are required.
+
+
+1) Aspect   : Aspect is a class, that provides additional services to project.
+		Transaction Management, Logging, Security, Encode and Decode..etc.
+
+2) Advice   : It is a method inside Aspect class. [It is actual implementation of Aspect]
+
+Types of Advices(5)
+Before Advice          : Executing Advice before calling b.method
+
+	execution order :  adviceMethod() -- 1st
+	                   b.method()     -- 2nd 
+
+After Advice           : Executing Advice After b.method finished
+
+	execution order :  b.method()      -- 1st
+	                   adviceMethod()  -- 2nd
+
+Around Advice          : Advice code made into 2 sections/parts, 1st part executed
+			 before advice and then b.method, later 2nd part of advice.
+
+	execution order : adviceMethod()  -- 1st-Part
+			  b.method()      
+	                  adviceMethod()  -- 2nd-Part
+
+After Returning Advice : After executing b.method, only on sucess execute advice.
+
+	execution order :  b.method()      -- 1st
+	       (Is B.method executed successfully, no exception) then call
+	                   adviceMethod()  -- 2nd
+
+After Throwing Advice  : After executing b.method, if b.method is throwing any
+                              exception then execute advice.
+
+      execution order :  b.method()      -- 1st
+	       (Is B.method executed not successfully, exception occured) then call
+	                   adviceMethod()  -- 2nd
+
+
+3) Pointcut : It is expression, it will select b.method which needs advices.
+               It can never specify what advices.
+
+  expression :   AS  RT  PACK.CLASS.METHOD(PARAM)
+
+
+4) JoinPoint : It is a combination of Advices + Pointcut. In simple connecting b.methods
+		with required advices.
+
+
+5) Target  : Pure Business class object.
+
+6) Weaving : It is a process of mixing b.class methods and their connected advices
+
+7) Proxy   : Final Output (class/object) is called as Proxy that contains both
+             logic connected.
+
+--------------------------------------------------------------------------------
+Implementations
+a) Spring AOP using XML Based Configuration [Legacy Style]
+b) Spring AOP using AspectJ [Annotations]
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-aop</artifactId>
+</dependency>
+
+
+Annotations:
+@Aspect
+@Before
+@After
+@Around
+@AfterReturning
+@AfterThrowing
+@Pointcut
+
+------------------------------------------------------------------
+Q) What is the difference between After, After Returning, After Throwing Advices?
+A) After advices is executed next to b.method either success or fail.
+   After Returning advice is executed only on succssful execution of b.method
+   After Throwing advice is executed only on Failure(Exception) execution of b.method
+
+=======================================================================================
+				Pointcut
+
+=> Pointcut is expression, it will select b.class methods which needs advices.
+=> Pointcut can never specify which advice is going to be connected.
+
+Pointcut Syntax:-
+ Specifier  ReturnType   Package.ClassName.MethodName(ParameterTypes)
+
+Note : allowed symbols in Pointcut expression: *(star), .(dot)
+
+-------Examples-----------------------------------------------------
+#1) public  int  in.nit.dao.EmployeeDao.saveEmployee(Employee)
+
+=> saveEmployee() method having Parameter 'Employee' with return type 'int'
+   of type public defined in class EmployeeDao (in.nit.dao)
+   is selected to connecte with advice.
+
+#2) public  *  org.akhil.dao.EmployeeDao.*()
+
+  => Zero Parametes only (no parameter)
+  => Any method name/ Method inside EmployeeDao class
+  => Any return type
+
+#3) public  *  org.akhil.dao.EmployeeDao.*(..)
+  
+  => Zero or more params (of any type)  [Any Parameter is fine]
+
+#4) public  *  org.akhil.dao.*.*(..)
+
+ => all classes which ar inside in.nit.dao package and thier methods
+ ====================
+ B.Methods
+---------------
+M#1  public int saveEmployee(Employee e)  { ...}
+M#2  public void deleteEmployee(Integer id)  { ...}
+M#3  public void updateEmployee(Employee e)  { ...}
+M#4  public Employee getEmployee(Integer id)  { ...}
+
+-----Pointcut expressions--------------
+ Specifier  ReturnType   Package.ClassName.MethodName(ParameterTypes)
+
+d) public  *  *(Integer)
+No of Methods matching : M#2, M#4 (2)
+
+c) public  *  saveEmployee(..)
+
+No of Methods matching : M#1 (only one)
+
+a) public  *  *()
+[Zero Params, any method name and any return type]
+
+No of Methods matching : zero
+
+b) public  void  *(..)
+[two dots inside method param indicates any no.of/type of parameters]
+
+No of Methods matching (2):  M#2, M#3
